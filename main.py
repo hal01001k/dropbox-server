@@ -8,6 +8,10 @@ import uuid
 import boto3
 from botocore.exceptions import NoCredentialsError
 import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Setup FastAPI app
 app = FastAPI(title="Dropbox Clone API")
@@ -21,11 +25,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# local s3_config
-S3_BUCKET = "dropbox-bucket"
-S3_ENDPOINT = "http://172.17.0.2:9000"
-S3_ACCESS_KEY = "oQuC9BdxQUVxcfEUwj5H"
-S3_SECRET_KEY = "veWW4IKZon58hEG6NWXWFwiwpt4pw0VWWc6LUNEX"
+# s3_config
+S3_BUCKET = os.getenv("S3_BUCKET")
+S3_ENDPOINT = os.getenv("S3_ENDPOINT")
+S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY")
+S3_SECRET_KEY = os.getenv("S3_SECRET_KEY")
 
 s3_client = boto3.client(
     's3',
@@ -66,7 +70,6 @@ async def upload_file(file: UploadFile = File(...)):
 
 @app.get("/api/files/")
 async def list_files():
-    print('hi')
     try:
         response = s3_client.list_objects_v2(Bucket=S3_BUCKET)
         if 'Contents' not in response:
